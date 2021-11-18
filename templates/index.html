@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class='container'>
+    <a type="button" class="btn right" href='logout'>Sign out</a>
+    <table>
+        <thead>
+            <tr>
+            <th scope="col">Usrname</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for person in users %}
+            <tr>
+            <td><a href="/info/{{ person.id }}">{{ person.username }}</a></td>
+            <td>{{ person.first_name }}</td>
+            <td>{{ person.last_name }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <button type="button" class="btn">Edit</button>
+    <button type="button" class="btn">Remove</button>
+    <button type="button" class="btn right">Add</button>
+</div>
+{% endblock %}
