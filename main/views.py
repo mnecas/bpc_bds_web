@@ -66,6 +66,7 @@ def register(request):
             request.session['user_id'] = new_user.id
             return redirect('/')
 
+
 def info(request, pk):
     if not request.session.get('user_id'):
         return redirect("/login")
@@ -73,6 +74,6 @@ def info(request, pk):
         try:
             print(pk)
             person = Person.objects.get(id=pk)
-            return render(request, "info.html", {"person":person})
+            return render(request, "info.html", {"person": person})
         except ObjectDoesNotExist:
             return redirect("/")
