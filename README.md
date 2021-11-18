@@ -14,11 +14,11 @@
 - pridat prochazeni dat
 
 ### long term
-- prochazeni jednotlivych dat
+- Prochazeni jednotlivych dat
 - Fix github actions
 - Pridat dockerfile
 - Vytvorit crontab na zalohu db kazdou pulnoc
-- Logovani a archivace
+- Logovani a archivace - python logging
 - Licence - projit si taky js a css knihovny na licence 
 - Ziskani vsech dep (pipreqs) - podle toho licence 
 
