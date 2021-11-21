@@ -1,0 +1,32 @@
+{% extends "base_with_navbar.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ person.username }}</h1>
+    <table>
+        <h3>Contacts</h3>
+        <tbody>
+        {% for contact in contacts %}
+            <tr>
+                <td>{{ contact.type }}</td>
+                <td>{{ contact.value }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <table>
+        <h3>Reviews</h3>
+        <tbody>
+        {% for review in reviews %}
+            <tr>
+                <td>Reviewer: <a href="/user/{{ review.reviewer.id }}">{{ review.reviewer.username }}</a></td>
+                {% if review.driver %}<td>Driver: <a href="/user/{{ review.driver.id }}">{{ review.driver.username }}</a></td>{% endif %}
+                {% if review.restaurant_dish %}<td>Dish: <a href="/restaurant/{{ review.restaurant_dish.restaurant.id }}">{{ review.restaurant_dish.dish }}</a></td>{% endif %}
+                <td>{{ review.text }}</td>
+                <td>{{ review.rating }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

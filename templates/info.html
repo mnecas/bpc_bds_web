@@ -3,30 +3,35 @@
 {% block content %}
 <div class="container">
     <h1>{{ person.username }}</h1>
-    <table>
-        <h3>Address</h3>
-        <tbody>
-        {% for adr in person.address.all %}
-            <tr>
-                <td>{{ adr.id }}</td>
-                <td>{{ adr.city }}</td>
-                <td>{{ adr.street }}</td>
-                <td>{{ adr.street_number }}</td>
-                <td>{{ adr.zip }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <table>
-        <h3>Contacts</h3>
-        <tbody>
-        {% for contact in contacts %}
-            <tr>
-                <td>{{ contact.type }}</td>
-                <td>{{ contact.value }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <form class="col s12" method="POST" actions='.'>
+        {% csrf_token %}
+        <table>
+            <h3>Address</h3>
+            <tbody>
+            {% for adr in person.address.all %}
+                <tr>
+                    <td><input placeholder="{{ adr.city }}" name="city" type="text" class="s12"/></td>
+                    <td><input placeholder="{{ adr.street }}" name="street" type="text" class="s12"/></td>
+                    <td><input placeholder="{{ adr.street_number }}" name="street_number" type="text" class="s12"/></td>
+                    <td><input placeholder="{{ adr.zip }}" name="zip" type="text" class="s12"/></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <table>
+            <h3>Contacts</h3>
+            <tbody>
+            {% for contact in contacts %}
+                <tr>
+                    <td><input placeholder="{{ contact.type }}" name="contact_type" type="text" class="s12"/></td>
+                    <td><input placeholder="{{ contact.value }}" name="contact_value" type="text" class="s12"/></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <button class="btn waves-effect waves-light right" type="submit" name="action">Submit
+            <i class="material-icons right">send</i>
+        </button>
+    </form>
 </div>
 {% endblock %}

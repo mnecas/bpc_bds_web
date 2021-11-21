@@ -6,15 +6,15 @@
     <table>
         <thead>
             <tr>
-            <th scope="col">Dish</th>
-            <th scope="col">Price</th>
+                <th scope="col">Dish</th>
+                <th scope="col">Price</th>
             </tr>
         </thead>
         <tbody>
         {% for dish in restaurant.restaurant_dish.all %}
             <tr>
-            <td>{{ dish.dish.name }}</td>
-            <td>{{ dish.price }}</td>
+                <td>{{ dish.dish.name }}</td>
+                <td>{{ dish.price }}</td>
             </tr>
         {% endfor %}
         </tbody>

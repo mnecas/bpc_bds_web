@@ -86,7 +86,8 @@ class Restaurant(models.Model):
 
 class RestaurantDish(models.Model):
     dish = models.ForeignKey(Dish, on_delete=models.CASCADE)
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name="restaurant_dish")
+    restaurant = models.ForeignKey(
+        Restaurant, on_delete=models.CASCADE, related_name="restaurant_dish")
     price = models.IntegerField()
     description = models.TextField(max_length=200)
 
@@ -109,7 +110,8 @@ class Delivery(models.Model):
 
 class DeliveryDish(models.Model):
     dish = models.ForeignKey(RestaurantDish, on_delete=models.CASCADE)
-    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE, related_name="delivery_dish")
+    delivery = models.ForeignKey(
+        Delivery, on_delete=models.CASCADE, related_name="delivery_dish")
     requirements = models.TextField(max_length=200)
 
     def __str__(self):
