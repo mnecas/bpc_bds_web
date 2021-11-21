@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from main.models import Person, PersonType, Restaurant
+from main.models import Person, PersonType, Restaurant, Contact, Delivery
 from django.core.exceptions import ObjectDoesNotExist
 
 import hashlib
@@ -73,7 +73,44 @@ def restaurant_info(request, pk):
     if request.method == 'GET':
         try:
             restaurant = Restaurant.objects.get(id=pk)
-            print(restaurant.restaurant_dish.all())
             return render(request, "restaurant_info.html", {"restaurant": restaurant})
         except ObjectDoesNotExist:
             return redirect("/")
+
+
+def user_info(request, pk):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+    if request.method == 'GET':
+        try:
+            restaurant = Restaurant.objects.get(id=pk)
+            return render(request, "restaurant_info.html", {"restaurant": restaurant})
+        except ObjectDoesNotExist:
+            return redirect("/")
+
+def info(request):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+    if request.method == 'GET':
+        try:
+            person = Person.objects.get(id=request.session['user_id'])
+            contacts = Contact.objects.filter(person=person)
+            return render(request, "info.html", {"person": person,"contacts":contacts})
+        except ObjectDoesNotExist:
+            return redirect("/")
+    if request.method == 'POST':
+        pass
+
+
+def delivery_info(request):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+    if request.method == 'GET':
+        try:
+            person = Person.objects.get(id=request.session['user_id'])
+            deliveries = Delivery.objects.filter(person=person)
+            return render(request, "delivery_info.html", {"person": person,"deliveries":deliveries})
+        except ObjectDoesNotExist:
+            return redirect("/")
+    if request.method == 'POST':
+        pass

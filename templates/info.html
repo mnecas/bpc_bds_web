@@ -1,0 +1,32 @@
+{% extends "base_with_navbar.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ person.username }}</h1>
+    <table>
+        <h3>Address</h3>
+        <tbody>
+        {% for adr in person.address.all %}
+            <tr>
+                <td>{{ adr.id }}</td>
+                <td>{{ adr.city }}</td>
+                <td>{{ adr.street }}</td>
+                <td>{{ adr.street_number }}</td>
+                <td>{{ adr.zip }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <table>
+        <h3>Contacts</h3>
+        <tbody>
+        {% for contact in contacts %}
+            <tr>
+                <td>{{ contact.type }}</td>
+                <td>{{ contact.value }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

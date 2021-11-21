@@ -1,0 +1,26 @@
+{% extends "base_with_navbar.html" %}
+
+{% block content %}
+<div class="container">
+    <h3>Deliveries</h3>
+    {% for delivery in deliveries %}
+    <table>
+        <tbody>
+            <tr>
+                <td><a href="/user/{{ delivery.driver.id }}">{{ delivery.driver.username }}</a></td>
+                <td>{{ delivery.arival }}</td>
+                <td>{{ delivery.delivery_fee }}</td>
+                <td>{{ delivery.requirements }}</td>
+            </tr>
+            {% for delivery_dish in delivery.delivery_dish.all %}
+            <tr>
+                <td><a href="/restaurant/{{ delivery_dish.dish.restaurant.id }}">{{ delivery_dish.dish.dish.name }}</td>
+                <td>{{ delivery_dish.dish.price }}</td>
+                <td>{{ delivery_dish.requirements }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+</div>
+{% endblock %}

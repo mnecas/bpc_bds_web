@@ -18,12 +18,10 @@
             <form action="/login" method="POST">
                 {% csrf_token %}
                 <div class="input-field col s12" id="username">
-                    <input  type="text" class="validate" name='username'>
-                    <label for="username">Username</label>
+                    <input placeholder="Username" type="text" class="validate" name='username'>
                 </div>
                 <div class="input-field col s12" id="password">
-                    <input  type="password" class="validate" name="password">
-                    <label for="password">Password</label>
+                    <input placeholder="Password" type="password" class="validate" name="password">
                 </div>
                 <a href="/register" class="col s2">Sign up</a>
                 <button class="btn waves-effect waves-light right light-blue col s4" type="submit" name="action">Login
