@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from main.models import Person, PersonType
+from main.models import Person, PersonType, Restaurant
 from django.core.exceptions import ObjectDoesNotExist
 
 import hashlib
@@ -15,8 +15,8 @@ def index(request):
     if not request.session.get('user_id'):
         return redirect("/login")
     if request.method == 'GET':
-        all_entries = Person.objects.all()
-        return render(request, 'index.html', {"users": all_entries})
+        all_entries = Restaurant.objects.all()
+        return render(request, 'index.html', {"restaurants": all_entries})
 
 
 def login(request):
@@ -44,7 +44,7 @@ def register(request):
         return redirect("/")
     if request.method == 'GET':
         return render(request, 'register.html')
-    elif request.method == 'POST':
+    elif request.method == 'POST':  
         username = request.POST.get("username", "")
         password = request.POST.get("password", "")
         first_name = request.POST.get("first_name", "")
@@ -67,13 +67,13 @@ def register(request):
             return redirect('/')
 
 
-def info(request, pk):
+def restaurant_info(request, pk):
     if not request.session.get('user_id'):
         return redirect("/login")
     if request.method == 'GET':
         try:
-            print(pk)
-            person = Person.objects.get(id=pk)
-            return render(request, "info.html", {"person": person})
+            restaurant = Restaurant.objects.get(id=pk)
+            print(restaurant.restaurant_dish.all())
+            return render(request, "restaurant_info.html", {"restaurant": restaurant})
         except ObjectDoesNotExist:
             return redirect("/")

@@ -2,21 +2,18 @@
 
 {% block content %}
 <div class='container'>
-    <a type="button" class="btn right" href='logout'>Sign out</a>
     <table>
         <thead>
             <tr>
-            <th scope="col">Usrname</th>
-            <th scope="col">First</th>
-            <th scope="col">Last</th>
+            <th scope="col">Restaurant name</th>
+            <th scope="col">Cuisine name</th>
             </tr>
         </thead>
         <tbody>
-        {% for person in users %}
+        {% for restaurant in restaurants %}
             <tr>
-            <td><a href="/info/{{ person.id }}">{{ person.username }}</a></td>
-            <td>{{ person.first_name }}</td>
-            <td>{{ person.last_name }}</td>
+            <td><a href="/restaurant/{{ restaurant.id }}">{{ restaurant.name }}</a></td>
+            <td>{{ restaurant.cuisine }}</td>
             </tr>
         {% endfor %}
         </tbody>

@@ -8,6 +8,16 @@ class PersonType(models.Model):
         return f"{self.type}"
 
 
+class Address(models.Model):
+    city = models.CharField(max_length=45)
+    street = models.CharField(max_length=45)
+    street_number = models.IntegerField()
+    zip = models.CharField(max_length=45)
+
+    def __str__(self):
+        return f"{self.city} {self.street} {self.street_number}"
+
+
 class Person(models.Model):
     first_name = models.CharField(max_length=45)
     last_name = models.CharField(max_length=45)
@@ -15,6 +25,7 @@ class Person(models.Model):
     username = models.CharField(max_length=45)
     date_of_birth = models.DateField()
     person_type = models.ForeignKey(PersonType, on_delete=models.CASCADE)
+    address = models.ManyToManyField(Address)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -48,19 +59,6 @@ class Shift(models.Model):
     def __str__(self):
         return f"{self.start_time} - {self.end_time}"
 
-# TODO: check the zip type
-
-
-class Address(models.Model):
-    persons = models.ManyToManyField(Person)
-    city = models.CharField(max_length=45)
-    street = models.CharField(max_length=45)
-    street_number = models.IntegerField()
-    zip = models.CharField(max_length=45)
-
-    def __str__(self):
-        return f"{self.persons} - {self.city} {self.street} {self.street_number}"
-
 
 class Cuisine(models.Model):
     name = models.CharField(max_length=45)
@@ -80,6 +78,7 @@ class Restaurant(models.Model):
     name = models.CharField(max_length=45)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     dishes = models.ManyToManyField(Dish, through='RestaurantDish')
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.name}"
@@ -87,8 +86,9 @@ class Restaurant(models.Model):
 
 class RestaurantDish(models.Model):
     dish = models.ForeignKey(Dish, on_delete=models.CASCADE)
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name="restaurant_dish")
     price = models.IntegerField()
+    description = models.TextField(max_length=200)
 
     def __str__(self):
         return f"{self.restaurant} - {self.dish} - {self.price}"

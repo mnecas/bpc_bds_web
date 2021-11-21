@@ -4,6 +4,7 @@
 - allow non first_name and last_name in the person table
 - zbavit se labelu a nechat tam neco nad inputama  - skoro nefunguje 
 - pridat prochazeni dat
+- allow date from 2011 - register
 
 ### long term
 - Prochazeni jednotlivych dat
