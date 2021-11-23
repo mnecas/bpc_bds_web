@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from main.models import Person, PersonType, Restaurant, Contact, Delivery, Review, RestaurantDish
+from main.models import Person, PersonType, Restaurant, Contact, Delivery, Review, RestaurantDish, Address
 from django.core.exceptions import ObjectDoesNotExist
 
 import hashlib
 
 
 def logout(request):
-    del request.session['user_id']
+    if request.session.get('user_id'):
+        del request.session['user_id']
     return redirect("/login")
 
 
@@ -120,3 +121,62 @@ def delivery_info(request):
             return render(request, "delivery_info.html", {"person": person, "deliveries": deliveries})
         except ObjectDoesNotExist:
             return redirect("/")
+
+
+def edit_address(request, pk):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+
+    try:
+        address = Address.objects.get(id=pk)
+        person = Person.objects.get(id=request.session['user_id'], address=address)
+    except ObjectDoesNotExist:
+        return redirect("/")
+    if request.method == 'GET':
+        return render(request, "forms/address.html", {"address": address,"person":person})
+    if request.method == 'POST':
+        if request.POST.get("remove", ""):
+            address.delete()
+        if request.POST.get("edit", ""):
+            address.city = request.POST.get("city", "")
+            address.street = request.POST.get("street", "")
+            address.zip = request.POST.get("zip", "")
+            address.street_number = request.POST.get("street_number", "")
+            address.save()
+        if request.POST.get("add", ""):
+            person.address.create(
+                city=request.POST.get("city", ""),
+                street=request.POST.get("street", ""),
+                zip=request.POST.get("zip", ""),
+                street_number=request.POST.get("street_number", ""),
+            )
+        return redirect("/user")
+
+
+
+def edit_contact(request, pk):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+
+    try:
+        person = Person.objects.get(id=request.session['user_id'])
+        contact = Contact.objects.get(id=pk, person=person)
+    except ObjectDoesNotExist:
+        return redirect("/")
+
+    if request.method == 'GET':
+        return render(request, "forms/contact.html", {"contact": contact,"person":person})
+    if request.method == 'POST':
+        if request.POST.get("remove", ""):
+            contact.delete()
+        if request.POST.get("edit", ""):
+            contact.type = request.POST.get("type", "")
+            contact.value = request.POST.get("value", "")
+            contact.save()
+        if request.POST.get("add", ""):
+            Contact.objects.create(
+                person=person,
+                type=request.POST.get("type", ""),
+                value=request.POST.get("value", ""),
+            )
+        return redirect("/user")
