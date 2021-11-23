@@ -1,0 +1,41 @@
+{% extends "base_with_navbar.html" %}
+
+{% block content %}
+<div class="container">
+    <h3>{{ review.restaurat_dish.dish.name }}</h3>
+    <form action="/review/{{ review.id }}" method="POST">
+        {% csrf_token %}
+        <table>
+            <tbody>
+                <tr class='row'>
+                    <td class="col s1">            
+                        <select class="col s1" name='rating'>
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
+                        </select>
+                        <label>Materialize Select</label>
+                    </td>
+                    <td class="col s11"><input placeholder="Review" value="{{ review.text }}" name="text" type="text"/></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button class="waves-effect waves-light btn right" value="add" type="submit" name="add">Add</button>
+        <button class="waves-effect waves-light btn right" value="remove" type="submit" name="remove">Remove</button>
+        <button class="waves-effect waves-light btn right" value="edit" type="submit" name="edit">Edit</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+  $(document).ready(function(){
+    $('select').formSelect();
+  });
+</script>
+{% endblock%}

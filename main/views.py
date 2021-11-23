@@ -68,6 +68,30 @@ def register(request):
             return redirect('/')
 
 
+def cart(request):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+
+    if request.method == 'GET':
+        try:
+            dishes = []
+            for rd_id in request.session.get('cart',[]):
+                dishes.append(RestaurantDish.objects.get(id=rd_id))
+            return render(request, "cart.html", {"cart":dishes, "price":sum(map(lambda x: x.price, dishes))})
+        except ObjectDoesNotExist:
+            return redirect("/")
+
+
+def add_cart(request, pk):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+    if request.session.get('cart'):
+        request.session['cart'] += [pk]
+    else:
+        request.session['cart'] = [pk]
+    return redirect("/")
+
+
 def restaurant_info(request, pk):
     if not request.session.get('user_id'):
         return redirect("/login")
@@ -76,7 +100,7 @@ def restaurant_info(request, pk):
             restaurant = Restaurant.objects.get(id=pk)
             rd = RestaurantDish.objects.get(restaurant=restaurant)
             reviews = Review.objects.filter(restaurant_dish=rd)
-            return render(request, "restaurant_info.html", {"restaurant": restaurant})
+            return render(request, "restaurant_info.html", {"restaurant": restaurant, "reviews":reviews})
         except ObjectDoesNotExist:
             return redirect("/")
 
@@ -129,11 +153,12 @@ def edit_address(request, pk):
 
     try:
         address = Address.objects.get(id=pk)
-        person = Person.objects.get(id=request.session['user_id'], address=address)
+        person = Person.objects.get(
+            id=request.session['user_id'], address=address)
     except ObjectDoesNotExist:
         return redirect("/")
     if request.method == 'GET':
-        return render(request, "forms/address.html", {"address": address,"person":person})
+        return render(request, "forms/address.html", {"address": address, "person": person})
     if request.method == 'POST':
         if request.POST.get("remove", ""):
             address.delete()
@@ -153,6 +178,34 @@ def edit_address(request, pk):
         return redirect("/user")
 
 
+def edit_review(request, pk):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+
+    try:
+        person = Person.objects.get(id=request.session['user_id'])
+        review = Review.objects.get(id=pk, reviewer=person)
+    except ObjectDoesNotExist:
+        return redirect("/")
+
+    if request.method == 'GET':
+        return render(request, "forms/review.html", {"review": review, "person": person})
+    if request.method == 'POST':
+        if request.POST.get("remove", ""):
+            review.delete()
+        if request.POST.get("edit", ""):
+            review.rating = request.POST.get("rating", "")
+            review.text = request.POST.get("text", "")
+            review.save()
+        if request.POST.get("add", ""):
+            Review.objects.create(
+                reviewer=person,
+                type=request.POST.get("type", ""),
+                value=request.POST.get("value", ""),
+            )
+        return redirect("/user")
+
+
 
 def edit_contact(request, pk):
     if not request.session.get('user_id'):
@@ -165,7 +218,7 @@ def edit_contact(request, pk):
         return redirect("/")
 
     if request.method == 'GET':
-        return render(request, "forms/contact.html", {"contact": contact,"person":person})
+        return render(request, "forms/contact.html", {"contact": contact, "person": person})
     if request.method == 'POST':
         if request.POST.get("remove", ""):
             contact.delete()

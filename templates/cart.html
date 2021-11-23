@@ -11,15 +11,14 @@
             </tr>
         </thead>
         <tbody>
-        {% for dish in restaurant.restaurant_dish.all %}
+        {% for dish in cart %}
             <tr>
                 <td>{{ dish.dish.name }}</td>
                 <td>{{ dish.price }}</td>
-                <td><a href="/add_cart/{{ dish.id }}">Add</a></td>
-                <td><a href="/review/{{ dish.id }}">Review</a></td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+    <br> Total price: {{ price }}
 </div>
 {% endblock %}
