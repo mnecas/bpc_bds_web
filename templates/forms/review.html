@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
     <h3>{{ review.restaurat_dish.dish.name }}</h3>
-    <form action="/review/{{ review.id }}" method="POST">
+    <form action="/edit/review/{{ restaurat_dish.id }}" method="POST">
         {% csrf_token %}
         <table>
             <tbody>

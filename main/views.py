@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from main.models import Person, PersonType, Restaurant, Contact, Delivery, Review, RestaurantDish, Address
+from main.models import Person, PersonType, Restaurant, Contact, Delivery, Review, RestaurantDish, Address, Cuisine
 from django.core.exceptions import ObjectDoesNotExist
 
 import hashlib
@@ -16,8 +16,14 @@ def index(request):
     if not request.session.get('user_id'):
         return redirect("/login")
     if request.method == 'GET':
-        all_entries = Restaurant.objects.all()
-        return render(request, 'index.html', {"restaurants": all_entries})
+        cuisines_id = request.GET.get("cuisine")
+        if cuisines_id:
+            all_entries = Restaurant.objects.filter(cuisine__id=cuisines_id)
+        else:
+            all_entries = Restaurant.objects.all()
+        cuisines = Cuisine.objects.all()
+        
+        return render(request, 'index.html', {"restaurants": all_entries, "cuisines":cuisines})
 
 
 def login(request):
@@ -30,7 +36,7 @@ def login(request):
         password = request.POST.get("password", "")
         try:
             person = Person.objects.get(username=username)
-            if person.password == hashlib.sha224(password.encode()).hexdigest():
+            if person.password == hashlib.sha256(password.encode()).hexdigest():
                 request.session['user_id'] = person.id
                 return redirect("/")
             else:
@@ -58,7 +64,7 @@ def register(request):
         except ObjectDoesNotExist:
             new_user = Person.objects.create(
                 username=username,
-                password=hashlib.sha224(password.encode()).hexdigest(),
+                password=hashlib.sha256(password.encode()).hexdigest(),
                 first_name=first_name,
                 last_name=last_name,
                 date_of_birth=date,
@@ -71,13 +77,12 @@ def register(request):
 def cart(request):
     if not request.session.get('user_id'):
         return redirect("/login")
-
     if request.method == 'GET':
         try:
             dishes = []
-            for rd_id in request.session.get('cart',[]):
+            for rd_id in request.session.get('cart', []):
                 dishes.append(RestaurantDish.objects.get(id=rd_id))
-            return render(request, "cart.html", {"cart":dishes, "price":sum(map(lambda x: x.price, dishes))})
+            return render(request, "cart.html", {"cart": dishes, "price": sum(map(lambda x: x.price, dishes))})
         except ObjectDoesNotExist:
             return redirect("/")
 
@@ -89,7 +94,7 @@ def add_cart(request, pk):
         request.session['cart'] += [pk]
     else:
         request.session['cart'] = [pk]
-    return redirect("/")
+    return redirect("/cart")
 
 
 def restaurant_info(request, pk):
@@ -100,7 +105,7 @@ def restaurant_info(request, pk):
             restaurant = Restaurant.objects.get(id=pk)
             rd = RestaurantDish.objects.get(restaurant=restaurant)
             reviews = Review.objects.filter(restaurant_dish=rd)
-            return render(request, "restaurant_info.html", {"restaurant": restaurant, "reviews":reviews})
+            return render(request, "restaurant_info.html", {"restaurant": restaurant, "reviews": reviews})
         except ObjectDoesNotExist:
             return redirect("/")
 
@@ -178,18 +183,36 @@ def edit_address(request, pk):
         return redirect("/user")
 
 
+def show_reviews(request):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+    if request.method == 'GET':
+        try:
+            restaurant_dish_id = request.GET.get("id")
+            reviews = Review.objects.filter(
+                restaurant_dish__id=restaurant_dish_id)
+        except ObjectDoesNotExist:
+            return redirect("/")
+        return render(request, "reviews.html", {"reviews": reviews})
+    return redirect("/")
+
+
 def edit_review(request, pk):
     if not request.session.get('user_id'):
         return redirect("/login")
 
     try:
         person = Person.objects.get(id=request.session['user_id'])
-        review = Review.objects.get(id=pk, reviewer=person)
+        rd = RestaurantDish.objects.get(id=pk)
+        reviews = Review.objects.filter(restaurant_dish=rd, reviewer=person)
+        review = {}
+        if reviews:
+            review = reviews[0]
     except ObjectDoesNotExist:
         return redirect("/")
 
     if request.method == 'GET':
-        return render(request, "forms/review.html", {"review": review, "person": person})
+        return render(request, "forms/review.html", {"review": review, "person": person, "restaurat_dish": rd})
     if request.method == 'POST':
         if request.POST.get("remove", ""):
             review.delete()
@@ -200,11 +223,11 @@ def edit_review(request, pk):
         if request.POST.get("add", ""):
             Review.objects.create(
                 reviewer=person,
-                type=request.POST.get("type", ""),
-                value=request.POST.get("value", ""),
+                rating=request.POST.get("rating", ""),
+                text=request.POST.get("text", ""),
+                restaurant_dish=rd,
             )
-        return redirect("/user")
-
+        return redirect("/")
 
 
 def edit_contact(request, pk):

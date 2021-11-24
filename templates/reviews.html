@@ -1,0 +1,35 @@
+{% extends "base_with_navbar.html" %}
+
+{% block content %}
+<div class='container'>
+    <table>
+        <thead>
+            <tr>
+            <th scope="col">Rating</th>
+            <th scope="col">Dish</th>
+            <th scope="col">Reviewer</th>
+            <th scope="col">Text</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for review in reviews %}
+            <tr>
+                <td>{{ review.rating }}</a></td>
+                <td>{{ review.restaurant_dish.dish.name }}</td>
+                <td>{{ review.reviewer.username }}</td>
+                <td>{{ review.text }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+  $(document).ready(function(){
+    $('select').formSelect();
+  });
+</script>
+{% endblock%}
