@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from main.models import Person, PersonType, Restaurant, Contact, Delivery, Review, RestaurantDish, Address, Cuisine
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 
 import hashlib
 
@@ -64,18 +65,20 @@ def register(request):
             User.objects.get(username=username)
             return render(request, 'register.html', {'user_exists': True})
         except ObjectDoesNotExist:
-            u = User.objects.create(
-                username = username,
-                first_name=first_name,
-                last_name=last_name,
-            )
-            u.set_password(password)
-            u.save()
-            new_user = Person.objects.create(
-                user=u,
-                date_of_birth=date,
-                type='user'
-            )
+
+            with transaction.atomic():
+                u = User.objects.create(
+                    username = username,
+                    first_name=first_name,
+                    last_name=last_name,
+                )
+                u.set_password(password)
+                u.save()
+                new_user = Person.objects.create(
+                    user=u,
+                    date_of_birth=date,
+                    type='user'
+                )
             request.session['user_id'] = new_user.id
             return redirect('/')
 
