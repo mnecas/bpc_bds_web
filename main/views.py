@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.contrib.auth.models import User
 from main.models import Person, PersonType, Restaurant, Contact, Delivery, Review, RestaurantDish, Address, Cuisine
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -35,8 +36,9 @@ def login(request):
         username = request.POST.get("username", "")
         password = request.POST.get("password", "")
         try:
-            person = Person.objects.get(username=username)
-            if person.password == hashlib.sha256(password.encode()).hexdigest():
+            user = User.objects.get(username=username)
+            if user.check_password(password):
+                person = Person.objects.get(user=user)
                 request.session['user_id'] = person.id
                 return redirect("/")
             else:
@@ -59,16 +61,20 @@ def register(request):
         date = request.POST.get("birthday", "")
         try:
             # Check if the person exists if it doe return error
-            Person.objects.get(username=username)
+            User.objects.get(username=username)
             return render(request, 'register.html', {'user_exists': True})
         except ObjectDoesNotExist:
-            new_user = Person.objects.create(
-                username=username,
-                password=hashlib.sha256(password.encode()).hexdigest(),
+            u = User.objects.create(
+                username = username,
                 first_name=first_name,
                 last_name=last_name,
+            )
+            u.set_password(password)
+            u.save()
+            new_user = Person.objects.create(
+                user=u,
                 date_of_birth=date,
-                person_type=PersonType.objects.get(type='User')
+                type='user'
             )
             request.session['user_id'] = new_user.id
             return redirect('/')
@@ -118,9 +124,9 @@ def user_info(request, pk):
             person = Person.objects.get(id=pk)
             contacts = Contact.objects.filter(person=person)
             reviews = None
-            if person.person_type.type == 'User':
+            if person.type == 'user':
                 reviews = Review.objects.filter(reviewer=person)
-            elif person.person_type.type == 'Driver':
+            elif person.type == 'driver':
                 reviews = Review.objects.filter(driver=person)
             return render(request, "user_info.html", {"person": person, "contacts": contacts, "reviews": reviews})
         except ObjectDoesNotExist:

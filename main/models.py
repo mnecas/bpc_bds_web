@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class PersonType(models.Model):
@@ -19,16 +20,17 @@ class Address(models.Model):
 
 
 class Person(models.Model):
-    first_name = models.CharField(max_length=45)
-    last_name = models.CharField(max_length=45)
-    password = models.CharField(max_length=64)
-    username = models.CharField(max_length=45)
+    USER_TYPES = (
+        ('user', 'USER'),
+        ('admin', 'ADMIN'),
+    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     date_of_birth = models.DateField()
-    person_type = models.ForeignKey(PersonType, on_delete=models.CASCADE)
+    type = models.CharField(max_length=50, choices=USER_TYPES)
     address = models.ManyToManyField(Address)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.type} - {self.user.username}"
 
 
 # TODO: Add list of params to the type
