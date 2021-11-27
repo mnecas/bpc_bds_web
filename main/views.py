@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from main.models import Person, PersonType, Restaurant, Contact, Delivery, Review, RestaurantDish, Address, Cuisine
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 
 import hashlib
 
@@ -35,8 +37,8 @@ def login(request):
         username = request.POST.get("username", "")
         password = request.POST.get("password", "")
         try:
-            person = Person.objects.get(username=username)
-            if person.password == hashlib.sha256(password.encode()).hexdigest():
+            person = authenticate(username=username, password=password)
+            if person:
                 request.session['user_id'] = person.id
                 return redirect("/")
             else:
@@ -62,14 +64,15 @@ def register(request):
             Person.objects.get(username=username)
             return render(request, 'register.html', {'user_exists': True})
         except ObjectDoesNotExist:
-            new_user = Person.objects.create(
+            new_user = Person(
                 username=username,
-                password=hashlib.sha256(password.encode()).hexdigest(),
                 first_name=first_name,
                 last_name=last_name,
                 date_of_birth=date,
                 person_type=PersonType.objects.get(type='User')
             )
+            new_user.set_password(password)
+            new_user.save()
             request.session['user_id'] = new_user.id
             return redirect('/')
 

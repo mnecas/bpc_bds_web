@@ -1,4 +1,30 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+
+
+class UserManager(BaseUserManager):
+    def create_user(self, username, password=None, date_of_birth=None, last_name=None, person_type=None, first_name=None):
+        user = self.model(
+            username=username,
+            date_of_birth=date_of_birth,
+            last_name=last_name,
+            first_name=first_name,
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, password, date_of_birth=None, last_name=None, first_name=None, email=None):
+        user = self.create_user(
+            username=username,
+            password=password,
+            date_of_birth=date_of_birth,
+            last_name=last_name,
+            first_name=first_name,
+        )
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
 
 
 class PersonType(models.Model):
@@ -18,14 +44,16 @@ class Address(models.Model):
         return f"{self.city} {self.street} {self.street_number}"
 
 
-class Person(models.Model):
+class Person(AbstractBaseUser):
     first_name = models.CharField(max_length=45)
     last_name = models.CharField(max_length=45)
-    password = models.CharField(max_length=64)
-    username = models.CharField(max_length=45)
+    username = models.CharField(max_length=45, unique=True)
     date_of_birth = models.DateField()
-    person_type = models.ForeignKey(PersonType, on_delete=models.CASCADE)
+    person_type = models.ForeignKey(PersonType, on_delete=models.CASCADE, blank=True, null=True)
     address = models.ManyToManyField(Address)
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['date_of_birth', 'last_name', 'first_name']
+    objects = UserManager()
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
