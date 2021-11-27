@@ -18,6 +18,9 @@
         {% for person in persons %}
             <tr>
                 <td>{{ person.user.username }}</td>
+                <td>{{ person.user.first_name }}</td>
+                <td>{{ person.user.last_name }}</td>
+                <td>{{ person.date_of_birth }}</td>
             </tr>
         {% endfor %}
         </tbody>

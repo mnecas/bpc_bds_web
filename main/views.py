@@ -85,14 +85,14 @@ def register(request):
 
 def test_sql_injection(request):
     if request.method == 'GET':
-        persons = Person.objects.all()
+        persons = []
     elif request.method == 'POST':
         #persons = Person.objects.filter(user__username=request.POST.get("username", ""))
+        # \' OR 1=1;--
         # \';DELETE FROM main_custom_drop_table;--
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = \'"+ request.POST.get("username", "")+"\'")
-            row = cursor.fetchone()
-        persons = Person.objects.raw("SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = \'"+ request.POST.get("username", "")+"\'")
+        query = "SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = \'"+ request.POST.get("username", "")+"\'"
+        print(query)
+        persons = Person.objects.raw(query)
         #persons = Person.objects.raw("SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = \'{}\'".format(request.POST.get("username", "")))
         print(persons)
         print(connection.queries)
