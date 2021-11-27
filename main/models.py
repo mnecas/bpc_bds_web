@@ -132,3 +132,6 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.reviewer} - {self.rating} - {self.text}"
+
+class CustomDropTable(models.Model):
+    text = models.TextField(max_length=500)

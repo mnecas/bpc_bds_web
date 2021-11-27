@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from main.models import Person, PersonType, Restaurant, Contact, Delivery, Review, RestaurantDish, Address, Cuisine
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-
+from django.db import connection
 import hashlib
 
 
@@ -24,8 +24,8 @@ def index(request):
         else:
             all_entries = Restaurant.objects.all()
         cuisines = Cuisine.objects.all()
-        
-        return render(request, 'index.html', {"restaurants": all_entries, "cuisines":cuisines})
+
+        return render(request, 'index.html', {"restaurants": all_entries, "cuisines": cuisines})
 
 
 def login(request):
@@ -68,7 +68,7 @@ def register(request):
 
             with transaction.atomic():
                 u = User.objects.create(
-                    username = username,
+                    username=username,
                     first_name=first_name,
                     last_name=last_name,
                 )
@@ -81,6 +81,22 @@ def register(request):
                 )
             request.session['user_id'] = new_user.id
             return redirect('/')
+
+
+def test_sql_injection(request):
+    if request.method == 'GET':
+        persons = Person.objects.all()
+    elif request.method == 'POST':
+        #persons = Person.objects.filter(user__username=request.POST.get("username", ""))
+        # \';DELETE FROM main_custom_drop_table;--
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = \'"+ request.POST.get("username", "")+"\'")
+            row = cursor.fetchone()
+        persons = Person.objects.raw("SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = \'"+ request.POST.get("username", "")+"\'")
+        #persons = Person.objects.raw("SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = \'{}\'".format(request.POST.get("username", "")))
+        print(persons)
+        print(connection.queries)
+    return render(request, "users.html", {"persons": persons})
 
 
 def cart(request):
