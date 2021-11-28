@@ -6,7 +6,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db import connection
 import hashlib
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 def logout(request):
     if request.session.get('user_id'):
@@ -15,6 +18,7 @@ def logout(request):
 
 
 def index(request):
+    logger.error('Something went wrong!')
     if not request.session.get('user_id'):
         return redirect("/login")
     if request.method == 'GET':
