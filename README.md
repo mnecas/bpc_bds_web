@@ -25,3 +25,19 @@ Default login:
 User: `mnecas`
 Password: `mnecas`
 
+## Delopment
+To run the web server you need to install all necessary python dependencies for it you can run:
+
+`pip3 install -r ./requirements.txt`
+
+For database initialization:
+
+`python3 manage.py makemigrations`
+
+`python3 manage.py migrate`
+
+To run the server use: 
+
+`python3 maange.py runserver`
+
+(Recommend chaning the `DEBUG` in settings to `True`)

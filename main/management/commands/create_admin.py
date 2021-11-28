@@ -6,12 +6,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         
         # The magic line
-        user = User.objects.create_user(
-            username= 'mnecas',
-            email='mnecas@mnecas.cz',
-            is_staff=True,
-            is_active=True,
-            is_superuser=True
-        )
-        user.set_password('mnecas')
-        user.save()
+        if not User.objects.filter(username='mnecas'):
+            user = User.objects.create_user(
+                username= 'mnecas',
+                email='mnecas@mnecas.cz',
+                is_staff=True,
+                is_active=True,
+                is_superuser=True
+            )
+            user.set_password('mnecas')
+            user.save()

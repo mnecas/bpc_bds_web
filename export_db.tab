@@ -1,1 +1,2 @@
 0 0 * * * python3 manage.py dumpdata > db.json
+0 0 * * * tar -czvf bpc_bds_web.tar.gz && echo > bpc_bds_web.log
