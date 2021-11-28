@@ -18,7 +18,6 @@ def logout(request):
 
 
 def index(request):
-    logger.error('Something went wrong!')
     if not request.session.get('user_id'):
         return redirect("/login")
     if request.method == 'GET':
