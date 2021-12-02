@@ -2,14 +2,20 @@ version: "3.9"
    
 services:
   db:
-    image: postgres
+    image: postgres:13
+    container_name: mnecas_db
     restart: always
     environment:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./db/db-init/:/docker-entrypoint-initdb.d/
+    ports:
+    - 5432:5432
   web:
     build: .
+    container_name: mnecas_web
     command: 
       - /bin/bash
       - -c
@@ -17,8 +23,6 @@ services:
         python manage.py migrate --database=prod
         python manage.py create_admin
         python manage.py runserver 0.0.0.0:8000
-    #volumes:
-    #  - .:/code
     ports:
       - "8000:8000"
     environment:
