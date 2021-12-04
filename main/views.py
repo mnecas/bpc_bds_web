@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.contrib.auth.models import User
 from main.models import Person, PersonType, Restaurant, Contact, Delivery, Review, RestaurantDish, Address, Cuisine
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db import connection
 import hashlib
 import logging
+import bcrypt
 
 
 logger = logging.getLogger(__name__)
@@ -40,10 +40,9 @@ def login(request):
         username = request.POST.get("username", "")
         password = request.POST.get("password", "")
         try:
-            user = User.objects.get(username=username)
-            if user.check_password(password):
-                person = Person.objects.get(user=user)
-                request.session['user_id'] = person.id
+            user = Person.objects.get(username=username)
+            if bcrypt.hashpw(password.encode('utf-8'), user.password):
+                request.session['user_id'] = user.id
                 return redirect("/")
             else:
                 return render(request, "login.html", {"wrong": True})
@@ -65,21 +64,18 @@ def register(request):
         date = request.POST.get("birthday", "")
         try:
             # Check if the person exists if it doe return error
-            User.objects.get(username=username)
+            Person.objects.get(username=username)
             return render(request, 'register.html', {'user_exists': True})
         except ObjectDoesNotExist:
-
+            salt = bcrypt.gensalt()
+            password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
             with transaction.atomic():
-                u = User.objects.create(
+                new_user = Person.objects.create(
+                    date_of_birth=date,
                     username=username,
                     first_name=first_name,
                     last_name=last_name,
-                )
-                u.set_password(password)
-                u.save()
-                new_user = Person.objects.create(
-                    user=u,
-                    date_of_birth=date,
+                    password=password_hash,
                     type='user'
                 )
             request.session['user_id'] = new_user.id

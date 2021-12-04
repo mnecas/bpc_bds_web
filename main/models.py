@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 
 class PersonType(models.Model):
@@ -24,8 +23,11 @@ class Person(models.Model):
         ('user', 'USER'),
         ('admin', 'ADMIN'),
     )
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
     date_of_birth = models.DateField()
+    password = models.BinaryField()
+    first_name = models.CharField(max_length=40)
+    last_name = models.CharField(max_length=40)
+    username = models.CharField(max_length=60)
     type = models.CharField(max_length=50, choices=USER_TYPES)
     address = models.ManyToManyField(Address)
 
