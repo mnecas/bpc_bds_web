@@ -95,11 +95,11 @@ def test_sql_injection(request):
         
         #persons = Person.objects.filter(user__username=request.POST.get("username", ""))
         
-        #query = "SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = \'"+ request.POST.get("username", "")+"\'"
-        #persons = Person.objects.raw(query)
+        query = "SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = \'"+ request.POST.get("username", "")+"\'"
+        persons = Person.objects.raw(query)
         
-        query = "SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = %s"
-        persons = Person.objects.raw(query, [request.POST.get("username", "")])
+        #query = "SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = %s"
+        #persons = Person.objects.raw(query, [request.POST.get("username", "")])
         print(query)
         print(persons)
         print(connection.queries)
