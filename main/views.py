@@ -11,6 +11,7 @@ import bcrypt
 
 logger = logging.getLogger(__name__)
 
+
 def logout(request):
     if request.session.get('user_id'):
         del request.session['user_id']
@@ -62,6 +63,8 @@ def register(request):
         first_name = request.POST.get("first_name", "")
         last_name = request.POST.get("last_name", "")
         date = request.POST.get("birthday", "")
+        if not (username and password and first_name and last_name and date):
+            return redirect('/register')
         try:
             # Check if the person exists if it doe return error
             Person.objects.get(username=username)
@@ -86,15 +89,20 @@ def test_sql_injection(request):
     if request.method == 'GET':
         persons = []
     elif request.method == 'POST':
+        # SQL INJECTIONS
         # \' OR 1=1;--
         # \';DELETE FROM main_custom_drop_table;--
-        
-        #persons = Person.objects.filter(user__username=request.POST.get("username", ""))
-        
-        query = "SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = \'"+ request.POST.get("username", "")+"\'"
+
+        # Django query
+        #persons = Person.objects.filter(username=request.POST.get("username", ""))
+
+        # SQL raw without prepare statement
+        query = "SELECT * FROM main_person WHERE 'main_person'.'username' = \'" + \
+            request.POST.get("username", "")+"\'"
         persons = Person.objects.raw(query)
-        
-        #query = "SELECT * FROM main_person INNER JOIN 'auth_user' ON ('main_person'.'user_id' = 'auth_user'.'id') WHERE 'auth_user'.'username' = %s"
+
+        # SQL raw with prepare statement
+        #query = "SELECT * FROM main_person WHERE 'main_person'.'username' = %s"
         #persons = Person.objects.raw(query, [request.POST.get("username", "")])
         print(query)
         print(persons)
@@ -168,18 +176,6 @@ def info(request):
             return redirect("/")
 
 
-def delivery_info(request):
-    if not request.session.get('user_id'):
-        return redirect("/login")
-    if request.method == 'GET':
-        try:
-            person = Person.objects.get(id=request.session['user_id'])
-            deliveries = Delivery.objects.filter(person=person)
-            return render(request, "delivery_info.html", {"person": person, "deliveries": deliveries})
-        except ObjectDoesNotExist:
-            return redirect("/")
-
-
 def edit_address(request, pk):
     if not request.session.get('user_id'):
         return redirect("/login")
@@ -201,13 +197,26 @@ def edit_address(request, pk):
             address.zip = request.POST.get("zip", "")
             address.street_number = request.POST.get("street_number", "")
             address.save()
-        if request.POST.get("add", ""):
-            person.address.create(
-                city=request.POST.get("city", ""),
-                street=request.POST.get("street", ""),
-                zip=request.POST.get("zip", ""),
-                street_number=request.POST.get("street_number", ""),
-            )
+        return redirect("/user")
+
+
+def add_address(request):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+
+    try:
+        person = Person.objects.get(id=request.session['user_id'])
+    except ObjectDoesNotExist:
+        return redirect("/")
+    if request.method == 'GET':
+        return render(request, "forms/address.html", {"person": person})
+    if request.method == 'POST':
+        person.address.create(
+            city=request.POST.get("city", ""),
+            street=request.POST.get("street", ""),
+            zip=request.POST.get("zip", ""),
+            street_number=request.POST.get("street_number", ""),
+        )
         return redirect("/user")
 
 
@@ -258,6 +267,25 @@ def edit_review(request, pk):
         return redirect("/")
 
 
+def add_contact(request):
+    if not request.session.get('user_id'):
+        return redirect("/login")
+    try:
+        person = Person.objects.get(id=request.session['user_id'])
+    except ObjectDoesNotExist:
+        return redirect("/")
+
+    if request.method == 'GET':
+        return render(request, "forms/contact.html", {"person": person})
+    if request.method == 'POST':
+        Contact.objects.create(
+            person=person,
+            type=request.POST.get("type", ""),
+            value=request.POST.get("value", ""),
+        )
+        return redirect("/user")
+
+
 def edit_contact(request, pk):
     if not request.session.get('user_id'):
         return redirect("/login")
@@ -277,10 +305,4 @@ def edit_contact(request, pk):
             contact.type = request.POST.get("type", "")
             contact.value = request.POST.get("value", "")
             contact.save()
-        if request.POST.get("add", ""):
-            Contact.objects.create(
-                person=person,
-                type=request.POST.get("type", ""),
-                value=request.POST.get("value", ""),
-            )
         return redirect("/user")

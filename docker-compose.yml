@@ -29,5 +29,4 @@ services:
       - POSTGRES_USER=bds_user
       - POSTGRES_PASSWORD=mnecas
     depends_on:
-      mnecas_db:
-        condition: service_healthy
+      mnecas_db

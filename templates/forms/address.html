@@ -3,6 +3,7 @@
 {% block content %}
 <div class="container">
     <h1>{{ person.username }}</h1>
+    {% if address.id %}
     <form action="/edit/address/{{ address.id }}" method="POST">
         {% csrf_token %}
         <table>
@@ -15,9 +16,24 @@
                 </tr>
             </tbody>
         </table>
-        <button class="waves-effect waves-light btn right" value="add" type="submit" name="add">Add</button>
         <button class="waves-effect waves-light btn right" value="remove" type="submit" name="remove">Remove</button>
         <button class="waves-effect waves-light btn right" value="edit" type="submit" name="edit">Edit</button>
     </form>
+    {% else %}
+    <form action="/edit/address/" method="POST">
+        {% csrf_token %}
+        <table>
+            <tbody>
+                <tr>
+                    <td><input placeholder="city" name="city" type="text" class="s12"/></td>
+                    <td><input placeholder="street" name="street" type="text" class="s12"/></td>
+                    <td><input placeholder="street number" name="street_number" type="text" class="s12"/></td>
+                    <td><input placeholder="zip" name="zip" type="text" class="s12"/></td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="waves-effect waves-light btn right" value="add" type="submit">Add</button>
+    </form>
+    {% endif %}
 </div>
 {% endblock %}

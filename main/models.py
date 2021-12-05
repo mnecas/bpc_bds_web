@@ -32,7 +32,7 @@ class Person(models.Model):
     address = models.ManyToManyField(Address)
 
     def __str__(self):
-        return f"{self.type} - {self.user.username}"
+        return f"{self.type} - {self.username}"
 
 
 # TODO: Add list of params to the type
