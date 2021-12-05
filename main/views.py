@@ -41,7 +41,7 @@ def login(request):
         password = request.POST.get("password", "")
         try:
             user = Person.objects.get(username=username)
-            if bcrypt.hashpw(password.encode('utf-8'), user.password):
+            if bcrypt.checkpw(password.encode('utf-8'), user.password):
                 request.session['user_id'] = user.id
                 return redirect("/")
             else:
