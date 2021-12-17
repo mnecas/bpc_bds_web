@@ -74,8 +74,9 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'file': {
+            'class': 'logging.handlers.TimedRotatingFileHandler',
             'level': 'WARNING',
-            'class': 'logging.FileHandler',
+            'when': 'midnight',
             'filename': 'bpc_bds_web.log',
         },
         'console': {
