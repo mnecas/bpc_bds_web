@@ -25,7 +25,7 @@ Default login:
 User: `mnecas`
 Password: `mnecas`
 
-## Delopment
+## Development
 To run the web server you need to install all necessary python dependencies for it you can run:
 
 `pip3 install -r ./requirements.txt`
